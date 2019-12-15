@@ -1,0 +1,32 @@
+env:
+  base: &env_name
+    env_name: TBD
+    # Project environment variables
+    GCP_PROJECT: <GCP_PROJECT>
+    GCS_BUCKET: <GCS_BUCKET>
+    DATA_LOCATION: <DATA_LOCATION>
+    BQ_DATASET: <BQ_DATASET>
+    BQ_ORG_TABLE: <BQ_ORG_TABLE>
+    CLUSTER_NAME: <CLUSTER_NAME>
+
+    # Filesystem
+    filetype_handler: parquet
+    io:
+      input: data/interim
+      transformer: data/output/transformer
+      pipeline: data/output/pipeline
+      output: output
+
+    # Train params
+    feature_engineer:
+      normalizer: standard_scaler
+
+    db_engine: Firestore
+
+  local:
+    <<: *env_name
+    env_name: local
+
+  dev:
+    <<: *env_name
+    env_name: dev

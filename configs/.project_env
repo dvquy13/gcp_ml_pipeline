@@ -1,0 +1,7 @@
+GCP_PROJECT='zinc-primer-230205'
+GCS_BUCKET=dvquys-tut-gcp-ml-pipeline
+DATA_LOCATION=us-east1
+BQ_DATASET=tut_iris
+BQ_ORG_TABLE=F_ORIGINAL
+
+CLUSTER_NAME=iris-pred

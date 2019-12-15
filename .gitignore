@@ -1,0 +1,19 @@
+# Ignore Git here
+.git
+
+# Ignore folders
+__pycache__/
+logs/
+.vscode/
+notebooks/
+.env
+data/
+dist/
+iris_pred/libs
+
+# But not these files...
+!.gitignore
+
+.DS_Store
+.idea/
+venv/
