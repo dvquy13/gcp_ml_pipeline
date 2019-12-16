@@ -30,7 +30,8 @@ class DBWriter:
                 .reset_index() \
                 .assign(
                     id=lambda df:
-                        df['id'].astype(str)) \
+                        df['index'].astype(str)) \
+                .drop(columns=['index']) \
                 .to_dict(orient='record')
 
         return fmt_data
