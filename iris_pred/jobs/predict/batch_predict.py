@@ -19,7 +19,7 @@ class BatchPredictor:
 
     def _get_fpath(self):
         interim_output_path = \
-            f'{self.params.io.pipeline}/pipeline.joblib'
+            f'../{self.params.io.pipeline}/pipeline.joblib'
         final_output_path = \
             f'{self.io_handler.fpath_dict.pipeline}/pipeline.joblib'
         return interim_output_path, final_output_path
@@ -41,7 +41,13 @@ class BatchPredictor:
 
     def _batch_predict(self, X_pred):
         predictions = self.pipeline.predict_proba(X_pred)
-        predictions_df = pd.DataFrame(data=predictions, index=X_pred.index)
+        predictions_df = pd.DataFrame(
+            data=predictions,
+            index=X_pred.index,
+            columns=[
+                f'score_{x}' for x in
+                self.pipeline.steps[-1][1].classes_
+                ])
         return predictions_df
 
     def _store_predictions(self, predictions_df):

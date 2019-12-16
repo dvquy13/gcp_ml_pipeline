@@ -23,7 +23,7 @@ class Trainer:
 
     def _get_fpath(self):
         interim_output_path = \
-            f'{self.params.io.pipeline}/pipeline.joblib'
+            f'../{self.params.io.pipeline}/pipeline.joblib'
         final_output_path = \
             f'{self.io_handler.fpath_dict.pipeline}/pipeline.joblib'
         return interim_output_path, final_output_path

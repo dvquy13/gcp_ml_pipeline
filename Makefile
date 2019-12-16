@@ -14,7 +14,7 @@ clean-pyc:
 # 3rd party libraries
 iris_pred/libs: requirements.txt
 	rm -fr ./iris_pred/libs/
-	pip3 install -r requirements.txt -t ./iris_pred/libs
+	pip install -r requirements.txt -t ./iris_pred/libs
 
 clean-output-cloud:
 	gsutil -m rm -r gs://$(GCS_BUCKET)/data/interim
@@ -22,11 +22,11 @@ clean-output-cloud:
 
 build: clean iris_pred/libs
 	mkdir ./dist
-	cp ./main.py ./dist
+	cp ./iris_pred/main.py ./dist
 	cp -r ./configs/*.yaml ./dist
 	-cp -r ./configs/*.py ./dist
 	cp -r ./configs/.project_env ./dist
-	cd ./iris_pred && zip -x \*libs\* -r ../dist/jobs.zip .
+	cd ./iris_pred && zip -x \*libs\* main.py -r ../dist/jobs.zip .
 	cd ./iris_pred/libs && zip -r ../../dist/libs.zip .
 
 create-dataproc-cluster:
@@ -66,6 +66,19 @@ ifeq ($(TASK),)
 	@echo Missing param TASK!!!
 	@exit 1
 endif
+ifeq ($(ENV),local)
+	cd dist && \
+	spark-submit \
+		--py-files jobs.zip,libs.zip \
+		--conf 'spark.executorEnv.PYTHONHASHSEED=321' \
+		--files runtime.yaml,logging.yaml,.project_env \
+		main.py \
+		--job $(MODULE).entry_point \
+		--job-args \
+			env=$(ENV) \
+			yaml_params_fpath=runtime.yaml \
+			task=$(TASK)
+else
 	cd dist && \
 	gcloud dataproc jobs submit pyspark \
 		--id $(shell date +%s)-iris-pred-$(TASK) \
@@ -82,3 +95,4 @@ endif
 			env=$(ENV) \
 			yaml_params_fpath=runtime.yaml \
 			task=$(TASK)
+endif
