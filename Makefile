@@ -14,7 +14,7 @@ clean-pyc:
 # 3rd party libraries
 iris_pred/libs: requirements.txt
 	rm -fr ./iris_pred/libs/
-	pip install -r requirements.txt -t ./iris_pred/libs
+	pip3 install -r requirements.txt -t ./iris_pred/libs
 
 clean-output-cloud:
 	gsutil -m rm -r gs://$(GCS_BUCKET)/data/interim
