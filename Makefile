@@ -2,6 +2,22 @@
 include ./configs/.project_env
 export
 
+# Main flow
+step-0:
+	make create-dataproc-cluster
+step-1:
+	make submit-job ENV=dev MODULE=data_import TASK=query_train_pred
+step-2:
+	make submit-job ENV=dev MODULE=feature_engineer TASK=normalize
+step-3:
+	make submit-job ENV=dev MODULE=model TASK=fit
+step-4:
+	make submit-job ENV=dev MODULE=predict TASK=batch_predict
+step-5:
+	make submit-job ENV=dev MODULE=predict TASK=store_predictions
+step-99:
+	make delete-dataproc-cluster
+
 clean: clean-build clean-pyc
 clean-build:
 	rm -fr dist/
@@ -43,8 +59,8 @@ create-dataproc-cluster:
 		--metadata 'CONDA_PACKAGES=scikit-learn=0.20.0' \
 		--metadata "PIP_PACKAGES=google-cloud-firestore firebase-admin python-dotenv==0.10.3 attrdict gcsfs" \
 		--initialization-actions \
-			gs://dataproc-initialization-actions/python/conda-install.sh,gs://dataproc-initialization-actions/python/pip-install.sh
-			
+			gs://dataproc-initialization-actions/python/conda-install.sh,gs://dataproc-initialization-actions/python/pip-install.sh \
+		--scopes=storage-full,datastore
 
 delete-dataproc-cluster:
 	gcloud dataproc clusters delete \
@@ -96,3 +112,45 @@ else
 			yaml_params_fpath=runtime.yaml \
 			task=$(TASK)
 endif
+
+
+# Some extra commands
+list-gcp-account-role:
+ifeq ($(GCP_ACCOUNT),)
+	@echo Missing param GCP_ACCOUNT!!!
+	@exit 1
+endif
+	gcloud projects get-iam-policy $(GCP_PROJECT) \
+		--flatten="bindings[].members" \
+		--format='table(bindings.role)' \
+		--filter="bindings.members:$(GCP_ACCOUNT)"
+
+# Refer to this doc: https://cloud.google.com/sdk/gcloud/reference/projects/add-iam-policy-binding
+# --member can take one of the following identity: {serviceAccount, user, group}
+remove-gcp-account-role:
+ifeq ($(GCP_ACCOUNT),)
+	@echo Missing param GCP_ACCOUNT!!!
+	@exit 1
+endif
+ifeq ($(ROLE),)
+	@echo Missing param ROLE!!! Example role: roles/datastore.user
+	@exit 1
+endif
+	gcloud projects remove-iam-policy-binding \
+		$(GCP_PROJECT) \
+		--member=serviceAccount:$(GCP_ACCOUNT) \
+		--role=$(ROLE)
+
+add-gcp-account-role:
+ifeq ($(GCP_ACCOUNT),)
+	@echo Missing param GCP_ACCOUNT!!!
+	@exit 1
+endif
+ifeq ($(ROLE),)
+	@echo Missing param ROLE!!! Example role: roles/datastore.user
+	@exit 1
+endif
+	gcloud projects add-iam-policy-binding \
+		$(GCP_PROJECT) \
+		--member=serviceAccount:$(GCP_ACCOUNT) \
+		--role=$(ROLE)
