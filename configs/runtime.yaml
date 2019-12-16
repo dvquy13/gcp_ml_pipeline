@@ -15,7 +15,7 @@ env:
       input: data/interim
       transformer: data/output/transformer
       pipeline: data/output/pipeline
-      output: output
+      prediction: data/output/prediction
 
     # Train params
     feature_engineer:
