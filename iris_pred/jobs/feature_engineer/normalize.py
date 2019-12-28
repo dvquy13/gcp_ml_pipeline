@@ -24,7 +24,7 @@ class FeatureNormalizer:
 
     def _get_fpath(self):
         interim_output_path = \
-            f'{self.params.io.transformer}/normalizer.joblib'
+            f'../{self.params.io.transformer}/normalizer.joblib'
         final_output_path = \
             f'{self.io_handler.fpath_dict.t_normalizer}/normalizer.joblib'
         return interim_output_path, final_output_path

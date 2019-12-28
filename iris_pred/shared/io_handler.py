@@ -27,10 +27,12 @@ class IOHandler:
         self.fpath_dict = self._init_global_fpath()
 
     def _setup(self, env_name: str):
-        os.makedirs(self.params.io.transformer, exist_ok=True)
-        os.makedirs(self.params.io.pipeline, exist_ok=True)
+        for _, path in self.params.io.items():
+            directory = f"../{path}"
+            logger.info(f"Making directory: {os.path.abspath(directory)}")
+            os.makedirs(directory, exist_ok=True)
         if env_name == 'local':
-            self.base_dir = './'
+            self.base_dir = '..'
         else:
             self.base_dir = f"gs://{self.params.GCS_BUCKET}"
 
@@ -45,7 +47,7 @@ class IOHandler:
             y_train=f"{self.params.io.input}/y_train",
             X_pred=f"{self.params.io.input}/X_pred",
             y_pred=f"{self.params.io.input}/y_pred",
-            predictions=f"{self.params.io.output}/predictions"
+            predictions=f"{self.params.io.prediction}/predictions"
         )
         input_fpath_dict = {
             k: self._assemble_input_fpath(v)
