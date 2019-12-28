@@ -10,6 +10,7 @@ notebooks/
 data/
 dist/
 iris_pred/libs
+docs/
 
 # But not these files...
 !.gitignore
