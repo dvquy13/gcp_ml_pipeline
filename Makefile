@@ -6,14 +6,16 @@ export
 step-0:
 	make create-dataproc-cluster
 step-1:
-	make submit-job ENV=dev MODULE=data_import TASK=query_train_pred
+	make build
 step-2:
-	make submit-job ENV=dev MODULE=feature_engineer TASK=normalize
+	make submit-job ENV=dev MODULE=data_import TASK=query_train_pred
 step-3:
-	make submit-job ENV=dev MODULE=model TASK=fit
+	make submit-job ENV=dev MODULE=feature_engineer TASK=normalize
 step-4:
-	make submit-job ENV=dev MODULE=predict TASK=batch_predict
+	make submit-job ENV=dev MODULE=model TASK=fit
 step-5:
+	make submit-job ENV=dev MODULE=predict TASK=batch_predict
+step-6:
 	make submit-job ENV=dev MODULE=predict TASK=store_predictions
 step-99:
 	make delete-dataproc-cluster
@@ -28,19 +30,18 @@ clean-pyc:
 	find . -name '__pycache__' -exec rm -fr {} +
 
 # 3rd party libraries
-iris_pred/libs: requirements.txt
+prepare-libs:
 	rm -fr ./iris_pred/libs/
-	pip install -r requirements.txt -t ./iris_pred/libs
+	pip3 install -r requirements.txt -t ./iris_pred/libs
 
 clean-output-cloud:
 	gsutil -m rm -r gs://$(GCS_BUCKET)/data/interim
 	gsutil -m rm -r gs://$(GCS_BUCKET)/data/output
 
-build: clean iris_pred/libs
+build: clean prepare-libs
 	mkdir ./dist
 	cp ./iris_pred/main.py ./dist
 	cp -r ./configs/*.yaml ./dist
-	-cp -r ./configs/*.py ./dist
 	cp -r ./configs/.project_env ./dist
 	cd ./iris_pred && zip -x \*libs\* main.py -r ../dist/jobs.zip .
 	cd ./iris_pred/libs && zip -r ../../dist/libs.zip .
@@ -60,7 +61,7 @@ create-dataproc-cluster:
 		--metadata "PIP_PACKAGES=google-cloud-firestore firebase-admin python-dotenv==0.10.3 attrdict gcsfs" \
 		--initialization-actions \
 			gs://dataproc-initialization-actions/python/conda-install.sh,gs://dataproc-initialization-actions/python/pip-install.sh \
-		--scopes=storage-full,datastore
+		--scopes=storage-full,datastore,bigquery
 
 delete-dataproc-cluster:
 	gcloud dataproc clusters delete \
