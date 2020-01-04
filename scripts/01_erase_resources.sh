@@ -1,3 +1,5 @@
+source configs/.project_env
+
 echo "Deleting Cloud Storage bucket $GCS_BUCKET..."
 gsutil -m rm -r gs://$GCS_BUCKET
 
