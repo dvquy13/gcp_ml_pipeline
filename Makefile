@@ -58,7 +58,7 @@ create-dataproc-cluster:
 		--max-idle 600s \
 		--optional-components=ANACONDA \
 		--metadata 'CONDA_PACKAGES=scikit-learn=0.20.0' \
-		--metadata "PIP_PACKAGES=google-cloud-firestore firebase-admin python-dotenv==0.10.3 attrdict gcsfs" \
+		--metadata "PIP_PACKAGES=google-cloud-firestore google-cloud-bigquery firebase-admin python-dotenv==0.10.3 attrdict gcsfs" \
 		--initialization-actions \
 			gs://dataproc-initialization-actions/python/conda-install.sh,gs://dataproc-initialization-actions/python/pip-install.sh \
 		--scopes=storage-full,datastore,bigquery
