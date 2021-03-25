@@ -1,4 +1,4 @@
 # Intentionally left blank, refer to the PIP and CONDA packages
 # in Makefile create-dataproc-cluster document
 
-PyYAML==5.2
+PyYAML==5.4
